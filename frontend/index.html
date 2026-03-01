@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>raffic Management Prototype</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg: #0a0e1a;
+      --bg2: #0f1626;
+      --bg3: #151d2e;
+      --card: #1a2236;
+      --border: #243048;
+      --accent: #3b82f6;
+      --accent2: #06d6a0;
+      --accent3: #f59e0b;
+      --accent4: #ef4444;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --code: #a5f3fc;
+      --purple: #8b5cf6;
+      --pink: #ec4899;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 14, 26, 0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 60px;
+    }
+
+    .nav-logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.6;
+        transform: scale(1.3);
+      }
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.25rem;
+      margin-left: auto;
+    }
+
+    .tab-btn {
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 500;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--bg3);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      background: var(--accent2);
+      color: #0a0e1a;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    /* LAYOUT */
+    .main {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero {
+      text-align: center;
+      padding: 3rem 0 2rem;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .info-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .info-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .info-card .ic-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .info-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .info-card p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .ic-num {
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono';
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    /* PANEL */
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .panel-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .pi-blue {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .pi-green {
+      background: rgba(6, 214, 160, 0.15);
+      border: 1px solid rgba(6, 214, 160, 0.3);
+    }
+
+    .pi-amber {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .panel h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .panel .subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* CONTROLS */
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .ctrl-group label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+
+    .ctrl-group select,
+    .ctrl-group input[type=range] {
+      font-family: inherit;
+    }
+
+    select {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-green {
+      background: var(--accent2);
+      color: #0a0e1a;
+    }
+
+    .btn-green:hover {
+      background: #05c48f;
+    }
+
+    .btn-amber {
+      background: var(--accent3);
+      color: #0a0e1a;
+    }
+
+    .btn-amber:hover {
+      background: #d97706;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.9rem;
+      font-size: 0.8rem;
+    }
+
+    /* SERVERS GRID */
+    .servers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .server-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .server-card.active {
+      border-color: var(--accent2);
+      box-shadow: 0 0 20px rgba(6, 214, 160, 0.15);
+    }
+
+    .server-card .sc-name {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: 'JetBrains Mono';
+      margin-bottom: 0.5rem;
+    }
+
+    .server-card .sc-count {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent2);
+      font-family: 'JetBrains Mono';
+      line-height: 1;
+    }
+
+    .server-card .sc-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .server-card .sc-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      margin-top: 0.75rem;
+      overflow: hidden;
+    }
+
+    .server-card .sc-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--accent2);
+      transition: width 0.4s ease;
+    }
+
+    .server-card .sc-ping {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent2);
+    }
+
+    .server-card .sc-ping.ping {
+      animation: serverPing 0.3s ease;
+    }
+
+    @keyframes serverPing {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(2.5);
+        opacity: 0.5;
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .req-log {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      font-family: 'JetBrains Mono';
+      font-size: 0.78rem;
+      max-height: 220px;
+      overflow-y: auto;
+      line-height: 1.8;
+    }
+
+    .req-log::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .req-log::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    .req-log::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .log-line {
+      padding: 0.1rem 0;
+    }
+
+    .log-line.routed {
+      color: var(--accent2);
+    }
+
+    .log-line.info {
+      color: var(--muted);
+    }
+
+    .log-line.start {
+      color: var(--accent);
+    }
+
+    /* STATS ROW */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono';
+    }
+
+    .stat-lbl {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .val-blue {
+      color: var(--accent);
+    }
+
+    .val-green {
+      color: var(--accent2);
+    }
+
+    .val-amber {
+      color: var(--accent3);
+    }
+
+    .val-red {
+      color: var(--accent4);
+    }
+
+    /* CACHE DEMO */
+    .cache-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .cache-side {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .cache-side h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cache-badge {
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .cb-miss {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--accent4);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .cb-hit {
+      background: rgba(6, 214, 160, 0.2);
+      color: var(--accent2);
+      border: 1px solid rgba(6, 214, 160, 0.3);
+    }
+
+    .timing-bar-wrap {
+      margin: 0.75rem 0;
+    }
+
+    .timing-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .timing-bar {
+      height: 24px;
+      border-radius: 6px;
+      background: var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .timing-fill {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding-left: 0.5rem;
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono';
+      font-weight: 500;
+      transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      white-space: nowrap;
+    }
+
+    .tf-red {
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.8), rgba(239, 68, 68, 0.6));
+      color: white;
+    }
+
+    .tf-green {
+      background: linear-gradient(90deg, rgba(6, 214, 160, 0.8), rgba(6, 214, 160, 0.6));
+      color: #0a0e1a;
+    }
+
+    .cache-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+    }
+
+    .cache-table th {
+      background: var(--bg3);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.75rem;
+    }
+
+    .cache-table td {
+      padding: 0.5rem 0.75rem;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono';
+      font-size: 0.78rem;
+    }
+
+    .cache-table tr.hit td:last-child {
+      color: var(--accent2);
+    }
+
+    .cache-table tr.miss td:last-child {
+      color: var(--accent4);
+    }
+
+    /* RATE LIMITER */
+    .token-display {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      min-height: 50px;
+      padding: 0.75rem;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .token {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+    }
+
+    .token.full {
+      background: var(--accent3);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+    }
+
+    .token.empty {
+      background: var(--border);
+      opacity: 0.4;
+    }
+
+    .req-feed {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono';
+      font-size: 0.78rem;
+    }
+
+    .req-item {
+      padding: 0.3rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.25rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .req-item.ok {
+      background: rgba(6, 214, 160, 0.1);
+      color: var(--accent2);
+      border: 1px solid rgba(6, 214, 160, 0.2);
+    }
+
+    .req-item.blocked {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--accent4);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .req-item .ri-status {
+      font-weight: 600;
+      font-size: 0.7rem;
+    }
+
+    .req-item .ri-msg {
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .rate-config {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .cfg-item label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .cfg-item .cfg-val {
+      font-family: 'JetBrains Mono';
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent3);
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--accent3);
+      margin-top: 0.3rem;
+    }
+
+    /* OVERVIEW SECTION */
+    .arch-diagram {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      margin: 1.5rem 0;
+      font-family: 'JetBrains Mono';
+      font-size: 0.82rem;
+    }
+
+    .arch-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      margin: 0.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .arch-box {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .ab-blue {
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      color: #93c5fd;
+    }
+
+    .ab-green {
+      background: rgba(6, 214, 160, 0.2);
+      border: 1px solid rgba(6, 214, 160, 0.4);
+      color: #5eead4;
+    }
+
+    .ab-amber {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fcd34d;
+    }
+
+    .ab-purple {
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      color: #c4b5fd;
+    }
+
+    .ab-pink {
+      background: rgba(236, 72, 153, 0.2);
+      border: 1px solid rgba(236, 72, 153, 0.4);
+      color: #f9a8d4;
+    }
+
+    .arch-arrow {
+      padding: 0 0.3rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .arch-or {
+      padding: 0 0.5rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .cost-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .cost-table th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      background: var(--bg3);
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.75rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .cost-table td {
+      padding: 0.7rem 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .cost-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .cost-table .tier {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .cost-table .cost {
+      font-family: 'JetBrains Mono';
+      font-weight: 700;
+      color: var(--accent2);
+    }
+
+    .cost-table .tools {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      margin: 0.15rem;
+      font-family: 'JetBrains Mono';
+    }
+
+    .pill-blue {
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .pill-green {
+      background: rgba(6, 214, 160, 0.15);
+      color: #5eead4;
+      border: 1px solid rgba(6, 214, 160, 0.3);
+    }
+
+    .pill-amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .pill-purple {
+      background: rgba(139, 92, 246, 0.15);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .pill-pink {
+      background: rgba(236, 72, 153, 0.15);
+      color: #f9a8d4;
+      border: 1px solid rgba(236, 72, 153, 0.3);
+    }
+
+    .tip-box {
+      background: rgba(6, 214, 160, 0.08);
+      border: 1px solid rgba(6, 214, 160, 0.2);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-size: 0.83rem;
+      color: #a7f3d0;
+      line-height: 1.7;
+      margin-top: 1rem;
+    }
+
+    .tip-box strong {
+      color: var(--accent2);
+    }
+
+    @media (max-width: 700px) {
+
+      .cards-grid,
+      .servers-grid,
+      .stats-row,
+      .cache-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-tabs {
+        gap: 0.1rem;
+      }
+
+      .tab-btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+      }
+
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="nav">
+    <div class="nav-logo">
+      <div class="logo-dot"></div> Traffic Manager
+    </div>
+    <span class="badge">PROTOTYPE</span>
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="showSection('overview', this)">Overview</button>
+      <button class="tab-btn" onclick="showSection('lb', this)">Load Balancer</button>
+      <button class="tab-btn" onclick="showSection('cache', this)">Cache Demo</button>
+      <button class="tab-btn" onclick="showSection('ratelimit', this)">Rate Limiter</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-left:0.5rem">
+      <div id="conn-dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent4)"></div>
+      <span id="conn-label" style="font-size:0.72rem;color:var(--muted);font-family:'JetBrains Mono'">DEMO</span>
+      <button class="btn btn-sm btn-outline" id="mode-toggle-btn" onclick="toggleMode()"
+        style="font-size:0.72rem;padding:0.25rem 0.6rem">Switch to LIVE</button>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <!-- OVERVIEW -->
+    <div id="sec-overview" class="section active">
+      <div class="hero">
+        <div class="hero-tag">Traffic Management Prototype v1.0</div>
+        <h1>How Big Platforms Handle <span>Millions of Requests</span></h1>
+        <p>Interactive simulations of the core techniques used by Instagram, Facebook, and Twitter. Click any module
+          below to explore.</p>
+      </div>
+
+      <div class="arch-diagram">
+        <div
+          style="color:var(--muted); font-size:0.75rem; margin-bottom:1.5rem; text-transform:uppercase; letter-spacing:0.1em;">
+          Target Architecture</div>
+        <div class="arch-row">
+          <div class="arch-box ab-blue">👥 Users (Worldwide)</div>
+        </div>
+        <div class="arch-row" style="color:var(--muted)">↓</div>
+        <div class="arch-row">
+          <div class="arch-box ab-amber">🌐 Cloudflare CDN + DDoS Protection</div>
+        </div>
+        <div class="arch-row" style="color:var(--muted)">↓</div>
+        <div class="arch-row">
+          <div class="arch-box ab-blue">⚖️ Nginx Load Balancer</div>
+        </div>
+        <div class="arch-row" style="color:var(--muted)">↓</div>
+        <div class="arch-row">
+          <div class="arch-box ab-green">🖥 App Server 1</div>
+          <div class="arch-or">|</div>
+          <div class="arch-box ab-green">🖥 App Server 2</div>
+          <div class="arch-or">|</div>
+          <div class="arch-box ab-green">🖥 App Server 3</div>
+        </div>
+        <div class="arch-row" style="color:var(--muted)">↓</div>
+        <div class="arch-row">
+          <div class="arch-box ab-amber">⚡ Redis Cache</div>
+          <div class="arch-or">&nbsp;&nbsp;&nbsp;</div>
+          <div class="arch-box ab-purple">📨 RabbitMQ</div>
+          <div class="arch-or">&nbsp;&nbsp;&nbsp;</div>
+          <div class="arch-box ab-pink">🐘 PostgreSQL</div>
+        </div>
+      </div>
+
+      <div class="cards-grid">
+        <div class="info-card" onclick="showSection('lb', document.querySelectorAll('.tab-btn')[1])">
+          <div class="ic-num">MODULE 01</div>
+          <div class="ic-icon">⚖️</div>
+          <h3>Load Balancer Simulation</h3>
+          <p>Watch requests distribute across 3 virtual servers in real-time using Round Robin, Least Connections, or IP
+            Hash algorithms.</p>
+        </div>
+        <div class="info-card" onclick="showSection('cache', document.querySelectorAll('.tab-btn')[2])">
+          <div class="ic-num">MODULE 02</div>
+          <div class="ic-icon">⚡</div>
+          <h3>Cache Performance Demo</h3>
+          <p>Compare 200ms database queries vs 3ms Redis cache hits. See how 99.5% cache hit rates transform
+            performance.</p>
+        </div>
+        <div class="info-card" onclick="showSection('ratelimit', document.querySelectorAll('.tab-btn')[3])">
+          <div class="ic-num">MODULE 03</div>
+          <div class="ic-icon">🛡️</div>
+          <h3>Rate Limiter Demo</h3>
+          <p>Spam requests and see the Token Bucket algorithm protect your server. HTTP 429 responses when limits are
+            exceeded.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-icon pi-green">💰</div>
+          <div>
+            <div class="panel h2" style="font-size:1rem;font-weight:600">Cost Estimate — Free OSS Stack on DigitalOcean
+            </div>
+          </div>
+        </div>
+        <table class="cost-table" style="width:100%">
+          <thead>
+            <tr>
+              <th>Scale</th>
+              <th>Users</th>
+              <th>Monthly Cost</th>
+              <th>Key Stack</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="tier">🌱 Phase 1</td>
+              <td>up to 10,000</td>
+              <td class="cost">~$24/mo</td>
+              <td class="tools"><span class="pill pill-blue">Nginx</span><span class="pill pill-green">Redis</span><span
+                  class="pill pill-pink">PostgreSQL</span><span class="pill pill-amber">Cloudflare Free</span></td>
+            </tr>
+            <tr>
+              <td class="tier">📈 Phase 2</td>
+              <td>up to 100,000</td>
+              <td class="cost">~$200/mo</td>
+              <td class="tools"><span class="pill pill-blue">Nginx LB</span><span class="pill pill-green">Redis
+                  Cluster</span><span class="pill pill-purple">RabbitMQ</span><span class="pill pill-pink">PG +
+                  Replica</span></td>
+            </tr>
+            <tr>
+              <td class="tier">🚀 Phase 3</td>
+              <td>up to 1,000,000</td>
+              <td class="cost">~$1,500/mo</td>
+              <td class="tools"><span class="pill pill-blue">K8s</span><span class="pill pill-green">Redis
+                  Cluster</span><span class="pill pill-amber">Kafka</span><span class="pill pill-pink">PG
+                  Sharded</span><span class="pill pill-purple">Grafana</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="tip-box" style="margin-top:1rem">
+          <strong>Key Insight:</strong> All tools (Nginx, Redis, PostgreSQL, Kafka, Kubernetes, Grafana) are 100% free.
+          You pay only for compute. Self-managed OSS reduces cloud costs by <strong>70–80%</strong> vs managed
+          equivalents (AWS RDS, ElastiCache, MSK).
+        </div>
+      </div>
+    </div>
+
+    <!-- LOAD BALANCER -->
+    <div id="sec-lb" class="section">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-icon pi-blue">⚖️</div>
+          <div>
+            <div class="panel h2" style="font-size:1rem;font-weight:600">Load Balancer Simulation</div>
+            <div class="subtitle">Distribute requests across 3 servers using different algorithms</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="ctrl-group">
+            <label>ALGORITHM</label>
+            <select id="lb-algo">
+              <option value="roundrobin">Round Robin</option>
+              <option value="leastconn">Least Connections</option>
+              <option value="iphash">IP Hash</option>
+            </select>
+          </div>
+          <div class="ctrl-group">
+            <label>REQUESTS TO SEND</label>
+            <select id="lb-count">
+              <option value="10">10 requests</option>
+              <option value="30" selected>30 requests</option>
+              <option value="100">100 requests</option>
+            </select>
+          </div>
+          <div class="ctrl-group">
+            <label>SPEED</label>
+            <select id="lb-speed">
+              <option value="300">Slow (300ms)</option>
+              <option value="80" selected>Normal (80ms)</option>
+              <option value="15">Fast (15ms)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="lb-run-btn" onclick="runLoadBalancer()">▶ Run Simulation</button>
+          <button class="btn btn-outline btn-sm" onclick="resetLB()">↺ Reset</button>
+        </div>
+
+        <div class="servers-grid">
+          <div class="server-card" id="server0">
+            <div class="sc-ping" id="ping0"></div>
+            <div class="sc-name">server-01 · :8001</div>
+            <div class="sc-count" id="count0">0</div>
+            <div class="sc-label">requests handled</div>
+            <div class="sc-bar">
+              <div class="sc-fill" id="fill0" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="server-card" id="server1">
+            <div class="sc-ping" id="ping1"></div>
+            <div class="sc-name">server-02 · :8002</div>
+            <div class="sc-count" id="count1">0</div>
+            <div class="sc-label">requests handled</div>
+            <div class="sc-bar">
+              <div class="sc-fill" id="fill1" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="server-card" id="server2">
+            <div class="sc-ping" id="ping2"></div>
+            <div class="sc-name">server-03 · :8003</div>
+            <div class="sc-count" id="count2">0</div>
+            <div class="sc-label">requests handled</div>
+            <div class="sc-bar">
+              <div class="sc-fill" id="fill2" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-val val-blue" id="lb-total">0</div>
+            <div class="stat-lbl">Total Requests</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val val-green" id="lb-balance">—</div>
+            <div class="stat-lbl">Balance Score</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val val-amber" id="lb-algo-disp">Round Robin</div>
+            <div class="stat-lbl">Algorithm</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val val-green" id="lb-status">Idle</div>
+            <div class="stat-lbl">Status</div>
+          </div>
+        </div>
+
+        <div class="req-log" id="lb-log">
+          <div class="log-line info">// Load balancer ready. Click "Run Simulation" to start.</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-icon pi-blue">📖</div>
+          <div>
+            <div style="font-size:1rem;font-weight:600">How Each Algorithm Works</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;font-size:0.83rem">
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem">
+            <div style="color:var(--accent);font-weight:600;margin-bottom:0.5rem">⟳ Round Robin</div>
+            <div style="color:var(--muted);line-height:1.7">Requests rotate sequentially: S1→S2→S3→S1→... Creates
+              perfectly even distribution. Used by Nginx by default. Best when servers have equal capacity.</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem">
+            <div style="color:var(--accent2);font-weight:600;margin-bottom:0.5rem">📊 Least Connections</div>
+            <div style="color:var(--muted);line-height:1.7">Routes to the server with fewest active connections. Adapts
+              dynamically to server speed differences. Better for requests with variable processing time.</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem">
+            <div style="color:var(--accent3);font-weight:600;margin-bottom:0.5rem">🔑 IP Hash</div>
+            <div style="color:var(--muted);line-height:1.7">User's IP deterministically maps to one server. The same
+              user always hits the same server (session persistence). Used when stateful apps can't share sessions.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CACHE DEMO -->
+    <div id="sec-cache" class="section">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-icon pi-green">⚡</div>
+          <div>
+            <div style="font-size:1rem;font-weight:600">Cache Performance Demo</div>
+            <div class="subtitle">Compare Redis cache hits vs. database queries in real-time</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="ctrl-group">
+            <label>QUERY TYPE</label>
+            <select id="cache-query">
+              <option value="user">User Profile</option>
+              <option value="feed">Activity Feed</option>
+              <option value="post">Post Data</option>
+              <option value="stats">Analytics Stats</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="runCacheRequest()">📡 Send Request</button>
+          <button class="btn btn-green" onclick="clearCache()">🗑 Clear Cache</button>
+          <button class="btn btn-outline btn-sm" onclick="resetCache()">↺ Reset</button>
+          <div
+            style="font-size:0.8rem;color:var(--muted);padding:0.5rem 0.75rem;background:var(--bg2);border:1px solid var(--border);border-radius:8px">
+            Cache: <span id="cache-status-indicator" style="color:var(--accent4);font-weight:600">COLD</span>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-val val-blue" id="cache-total">0</div>
+            <div class="stat-lbl">Total Requests</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val val-green" id="cache-hits">0</div>
+            <div class="stat-lbl">Cache Hits</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val val-red" id="cache-misses">0</div>
+            <div class="stat-lbl">Cache Misses</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val val-green" id="cache-hitrate">0%</div>
+            <div class="stat-lbl">Hit Rate</div>
+          </div>
+        </div>
+
+        <div class="cache-grid">
+          <div class="cache-side">
+            <h4>⏱ Response Time Comparison <span class="cache-badge cb-miss">MISS = DB Query</span></h4>
+            <div class="timing-bar-wrap">
+              <div class="timing-label">
+                <span>🗄 Database Query (no cache)</span>
+                <span id="db-time-label"
+                  style="font-family:'JetBrains Mono';font-size:0.78rem;color:var(--accent4)">~200ms avg</span>
+              </div>
+              <div class="timing-bar">
+                <div class="timing-fill tf-red" id="db-bar" style="width:80%">DB: ~<span id="db-ms">200</span>ms</div>
+              </div>
+            </div>
+            <div class="timing-bar-wrap">
+              <div class="timing-label">
+                <span>⚡ Redis Cache Hit</span>
+                <span id="cache-time-label"
+                  style="font-family:'JetBrains Mono';font-size:0.78rem;color:var(--accent2)">~3ms avg</span>
+              </div>
+              <div class="timing-bar">
+                <div class="timing-fill tf-green" id="cache-bar" style="width:1.5%">Cache: ~<span
+                    id="cache-ms">3</span>ms</div>
+              </div>
+            </div>
+            <div class="tip-box" style="margin-top:1rem">
+              <strong>Speedup:</strong> Redis is <span id="speedup">~67x</span> faster than a direct database query.
+              Instagram achieves 99.5%+ cache hit rates — meaning the database is almost never touched.
+            </div>
+          </div>
+
+          <div class="cache-side">
+            <h4>📋 Request History</h4>
+            <table class="cache-table" id="cache-history-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Query</th>
+                  <th>Source</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="cache-history"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RATE LIMITER -->
+    <div id="sec-ratelimit" class="section">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-icon pi-amber">🛡️</div>
+          <div>
+            <div style="font-size:1rem;font-weight:600">Rate Limiter — Token Bucket Algorithm</div>
+            <div class="subtitle">See how servers protect themselves from traffic spikes and abuse</div>
+          </div>
+        </div>
+
+        <div class="rate-config">
+          <div class="cfg-item">
+            <label>BUCKET CAPACITY (max tokens)</label>
+            <div class="cfg-val" id="max-tokens-display">10</div>
+            <input type="range" id="max-tokens" min="5" max="20" value="10" oninput="updateRateLimitConfig()">
+          </div>
+          <div class="cfg-item">
+            <label>REFILL RATE (tokens/second)</label>
+            <div class="cfg-val" id="refill-rate-display">2/sec</div>
+            <input type="range" id="refill-rate" min="1" max="5" value="2" oninput="updateRateLimitConfig()">
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;font-size:0.82rem;color:var(--muted)">
+          Token Bucket — <span id="tokens-left"
+            style="color:var(--accent3);font-weight:600;font-family:'JetBrains Mono'">10</span> / <span
+            id="max-tokens-label" style="font-family:'JetBrains Mono'">10</span> tokens remaining
+          <span style="margin-left:1rem;font-size:0.75rem;color:var(--muted)">(refills at <span id="refill-display"
+              style="color:var(--accent3)">2</span> tokens/sec)</span>
+        </div>
+        <div class="token-display" id="token-display"></div>
+
+        <div class="controls">
+          <button class="btn btn-amber" onclick="sendRateRequest()">📤 Send Request</button>
+          <button class="btn btn-amber" onclick="sendBurst(5)">💥 Send Burst (5)</button>
+          <button class="btn btn-amber" onclick="sendBurst(15)">🔥 Send Flood (15)</button>
+          <button class="btn btn-outline btn-sm" onclick="resetRateLimiter()">↺ Reset</button>
+          <div
+            style="font-size:0.8rem;color:var(--muted);padding:0.5rem 0.75rem;background:var(--bg2);border:1px solid var(--border);border-radius:8px">
+            <span class="pill pill-green">✓ <span id="rl-ok-count">0</span> OK</span>
+            <span class="pill pill-pink">✗ <span id="rl-blocked-count">0</span> Blocked</span>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-val val-blue" id="rl-total">0</div>
+            <div class="stat-lbl">Total Requests</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val val-green" id="rl-ok">0</div>
+            <div class="stat-lbl">Allowed (200 OK)</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val val-red" id="rl-blocked">0</div>
+            <div class="stat-lbl">Blocked (429)</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val val-amber" id="rl-block-pct">0%</div>
+            <div class="stat-lbl">Block Rate</div>
+          </div>
+        </div>
+
+        <div class="req-feed" id="req-feed">
+          <div style="color:var(--muted);font-size:0.78rem;padding:0.3rem 0.5rem">// Waiting for requests...</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-icon pi-amber">📖</div>
+          <div>
+            <div style="font-size:1rem;font-weight:600">Token Bucket Algorithm Explained</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;font-size:0.83rem">
+          <div>
+            <div style="color:var(--text);font-weight:600;margin-bottom:0.75rem">How It Works</div>
+            <div style="color:var(--muted);line-height:1.8">
+              1. A bucket starts with N tokens (your limit)<br>
+              2. Each request consumes 1 token<br>
+              3. Tokens refill at a fixed rate (e.g. 2/sec)<br>
+              4. If bucket is empty → HTTP 429 Too Many Requests<br>
+              5. Allows short bursts up to bucket capacity
+            </div>
+          </div>
+          <div>
+            <div style="color:var(--text);font-weight:600;margin-bottom:0.75rem">Real-World Usage</div>
+            <div style="color:var(--muted);line-height:1.8">
+              Twitter API: 500,000 tweets/month Basic tier<br>
+              GitHub API: 5,000 requests/hour authenticated<br>
+              Cloudflare: Rate limit rules per IP/path<br>
+              Redis implementation: INCR + EXPIRE (atomic)<br>
+              Response: HTTP 429 + Retry-After header
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ============================================================
+    // DUAL MODE SCRIPT
+    // Switch between LIVE (real backend) and DEMO (simulation) mode
+    // ============================================================
+
+    const API_BASE = 'http://localhost:8080';
+    let LIVE_MODE = false;
+
+    // ── MODE TOGGLE ──────────────────────────────────────────────
+    function toggleMode() {
+      LIVE_MODE = !LIVE_MODE;
+      const btn = document.getElementById('mode-toggle-btn');
+      const dot = document.getElementById('conn-dot');
+      const lbl = document.getElementById('conn-label');
+      if (LIVE_MODE) {
+        btn.textContent = 'Switch to DEMO';
+        btn.style.borderColor = 'var(--accent2)';
+        btn.style.color = 'var(--accent2)';
+        lbl.textContent = 'LIVE';
+        lbl.style.color = 'var(--accent2)';
+        dot.style.background = 'var(--accent3)';
+        checkBackendHealth();
+      } else {
+        btn.textContent = 'Switch to LIVE';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        lbl.textContent = 'DEMO';
+        lbl.style.color = 'var(--muted)';
+        dot.style.background = 'var(--accent4)';
+      }
+    }
+
+    async function checkBackendHealth() {
+      const dot = document.getElementById('conn-dot');
+      const lbl = document.getElementById('conn-label');
+      try {
+        const r = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(4000) });
+        if (r.ok) {
+          const d = await r.json();
+          dot.style.background = 'var(--accent2)';
+          dot.style.animation = 'pulse 2s infinite';
+          lbl.textContent = `LIVE · ${d.server_id}`;
+        } else { throw new Error(); }
+      } catch {
+        dot.style.background = 'var(--accent4)';
+        dot.style.animation = 'none';
+        lbl.textContent = 'LIVE · UNREACHABLE';
+        lbl.style.color = 'var(--accent4)';
+      }
+    }
+
+    // ── NAVIGATION ───────────────────────────────────────────────
+    function showSection(id, btn) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('sec-' + id).classList.add('active');
+      if (btn && btn.classList) btn.classList.add('active');
+      else document.querySelectorAll('.tab-btn').forEach(b => {
+        if (b.textContent.toLowerCase().includes(id.substring(0, 4))) b.classList.add('active');
+      });
+    }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // ============================================================
+    // LOAD BALANCER
+    // ============================================================
+    let lbCounts = [0, 0, 0], lbConnections = [0, 0, 0], lbTotal = 0, lbRunning = false, lbRRIndex = 0;
+
+    function resetLB() {
+      lbCounts = [0, 0, 0]; lbConnections = [0, 0, 0]; lbTotal = 0; lbRRIndex = 0;
+      for (let i = 0; i < 3; i++) {
+        document.getElementById('count' + i).textContent = '0';
+        document.getElementById('fill' + i).style.width = '0%';
+        document.getElementById('server' + i).classList.remove('active');
+      }
+      document.getElementById('lb-total').textContent = '0';
+      document.getElementById('lb-balance').textContent = '—';
+      document.getElementById('lb-status').textContent = 'Idle';
+      document.getElementById('lb-log').innerHTML = '<div class="log-line info">// Reset. Ready for new simulation.</div>';
+      document.getElementById('lb-run-btn').disabled = false;
+    }
+
+    function pickServer(algo, ip) {
+      if (algo === 'roundrobin') { const s = lbRRIndex % 3; lbRRIndex++; return s; }
+      if (algo === 'leastconn') { return lbConnections.indexOf(Math.min(...lbConnections)); }
+      let hash = 0; for (let c of ip) hash = (hash * 31 + c.charCodeAt(0)) % 3; return Math.abs(hash) % 3;
+    }
+
+    function flashServer(idx, serverId) {
+      // Map server-1/2/3 to index 0/1/2 (LIVE mode uses real server_id)
+      let i = idx;
+      if (typeof serverId === 'string') {
+        const m = serverId.match(/(\d)$/);
+        if (m) i = parseInt(m[1]) - 1;
+      }
+      lbCounts[i]++; lbTotal++;
+      document.getElementById('count' + i).textContent = lbCounts[i];
+      document.getElementById('lb-total').textContent = lbTotal;
+      document.getElementById('server' + i).classList.add('active');
+      const ping = document.getElementById('ping' + i);
+      ping.classList.remove('ping'); void ping.offsetWidth; ping.classList.add('ping');
+      const maxCount = Math.max(...lbCounts);
+      for (let j = 0; j < 3; j++) document.getElementById('fill' + j).style.width = maxCount > 0 ? (lbCounts[j] / maxCount * 100) + '%' : '0%';
+      return i;
+    }
+
+    async function runLoadBalancer() {
+      if (lbRunning) return;
+      lbRunning = true;
+      document.getElementById('lb-run-btn').disabled = true;
+      resetLB();
+      const algo = document.getElementById('lb-algo').value;
+      const count = parseInt(document.getElementById('lb-count').value);
+      const speed = parseInt(document.getElementById('lb-speed').value);
+      const algoNames = { roundrobin: 'Round Robin', leastconn: 'Least Connections', iphash: 'IP Hash' };
+      document.getElementById('lb-algo-disp').textContent = algoNames[algo];
+      document.getElementById('lb-status').textContent = 'Running';
+      const log = document.getElementById('lb-log');
+      log.innerHTML = `<div class="log-line start">// ${LIVE_MODE ? '[LIVE]' : '[DEMO]'} Starting: ${count} requests via ${algoNames[algo]}</div>`;
+      const ips = ['192.168.1.42', '10.0.0.7', '172.16.0.3', '192.168.2.15', '10.0.1.99', '172.31.0.8'];
+
+      for (let i = 1; i <= count; i++) {
+        const ip = ips[Math.floor(Math.random() * ips.length)];
+        let serverId, serverIdx, ms;
+
+        if (LIVE_MODE) {
+          try {
+            const t0 = performance.now();
+            const r = await fetch(`${API_BASE}/data?user=lb_test`);
+            ms = Math.round(performance.now() - t0);
+            const d = await r.json();
+            serverId = d.server_id;
+            serverIdx = flashServer(0, serverId);
+          } catch (e) {
+            const line = document.createElement('div'); line.className = 'log-line info';
+            line.textContent = `[ERR #${String(i).padStart(3, '0')}] Backend unreachable — switch to DEMO mode`;
+            log.appendChild(line); log.scrollTop = log.scrollHeight; break;
+          }
+        } else {
+          serverIdx = pickServer(algo, ip);
+          lbConnections[serverIdx]++;
+          ms = Math.floor(Math.random() * 20) + 5;
+          serverId = `server-${serverIdx + 1}`;
+          flashServer(serverIdx, null);
+        }
+
+        const line = document.createElement('div'); line.className = 'log-line routed';
+        line.textContent = `[REQ #${String(i).padStart(3, '0')}] ${ip} → ${serverId}:8000 (${ms}ms, load:${lbCounts[serverIdx]})`;
+        log.appendChild(line); log.scrollTop = log.scrollHeight;
+        await sleep(speed);
+        lbConnections[serverIdx] = Math.max(0, lbConnections[serverIdx] - 1);
+        setTimeout(() => document.getElementById('server' + serverIdx).classList.remove('active'), speed * 2);
+      }
+
+      const max = Math.max(...lbCounts), min = Math.min(...lbCounts);
+      const balance = max > 0 ? Math.round((1 - (max - min) / lbTotal) * 100) + '%' : '100%';
+      document.getElementById('lb-balance').textContent = balance;
+      document.getElementById('lb-status').textContent = 'Complete';
+      const done = document.createElement('div'); done.className = 'log-line start';
+      done.textContent = `// Done. S1=${lbCounts[0]} S2=${lbCounts[1]} S3=${lbCounts[2]} | Balance: ${balance}`;
+      log.appendChild(done); log.scrollTop = log.scrollHeight;
+      lbRunning = false; document.getElementById('lb-run-btn').disabled = false;
+    }
+
+    // ============================================================
+    // CACHE DEMO
+    // ============================================================
+    const cacheStore = {};
+    let cacheReqCount = 0, cacheHits = 0, cacheMisses = 0, lastDbMs = 200, lastCacheMs = 3;
+    const queryLabels = { user: 'getUserProfile', feed: 'getActivityFeed', post: 'getPostData', stats: 'getAnalytics' };
+
+    function clearCache() {
+      if (LIVE_MODE) {
+        fetch(`${API_BASE}/flush-cache`).catch(() => { });
+      }
+      Object.keys(cacheStore).forEach(k => delete cacheStore[k]);
+      document.getElementById('cache-status-indicator').textContent = 'COLD';
+      document.getElementById('cache-status-indicator').style.color = 'var(--accent4)';
+    }
+
+    function resetCache() { clearCache(); cacheReqCount = 0; cacheHits = 0; cacheMisses = 0; updateCacheStats(); document.getElementById('cache-history').innerHTML = ''; }
+
+    function updateCacheStats() {
+      document.getElementById('cache-total').textContent = cacheReqCount;
+      document.getElementById('cache-hits').textContent = cacheHits;
+      document.getElementById('cache-misses').textContent = cacheMisses;
+      document.getElementById('cache-hitrate').textContent = cacheReqCount > 0 ? Math.round(cacheHits / cacheReqCount * 100) + '%' : '0%';
+    }
+
+    async function runCacheRequest() {
+      const qtype = document.getElementById('cache-query').value;
+      cacheReqCount++;
+      let ms, source, isHit, serverId = '—';
+
+      if (LIVE_MODE) {
+        try {
+          const t0 = performance.now();
+          const r = await fetch(`${API_BASE}/data?user=${qtype}`);
+          const d = await r.json();
+          ms = d.response_time_ms ?? Math.round(performance.now() - t0);
+          source = d.source || 'unknown';
+          isHit = source === 'cache';
+          serverId = d.server_id || '—';
+        } catch (e) { ms = 0; source = 'error (backend down)'; isHit = false; }
+      } else {
+        const key = 'cache:' + qtype;
+        if (cacheStore[key]) { ms = Math.floor(Math.random() * 4) + 1; source = 'Redis Cache ⚡'; isHit = true; }
+        else { ms = Math.floor(Math.random() * 150) + 100; source = 'Database 🗄'; isHit = false; cacheStore[key] = true; }
+      }
+
+      if (isHit) { cacheHits++; lastCacheMs = ms; } else { cacheMisses++; lastDbMs = ms; }
+      updateCacheStats();
+
+      // Update cache warm/cold indicator
+      const ind = document.getElementById('cache-status-indicator');
+      if (isHit) { ind.textContent = 'WARM'; ind.style.color = 'var(--accent2)'; }
+      else { ind.textContent = 'COLD'; ind.style.color = 'var(--accent4)'; }
+
+      const dbPct = Math.min(95, (lastDbMs / 350) * 100);
+      const cachePct = Math.max(1.2, (lastCacheMs / 350) * 100);
+      document.getElementById('db-bar').style.width = dbPct + '%';
+      document.getElementById('db-ms').textContent = lastDbMs;
+      document.getElementById('cache-bar').style.width = cachePct + '%';
+      document.getElementById('cache-ms').textContent = lastCacheMs;
+      document.getElementById('speedup').textContent = '~' + Math.round(lastDbMs / Math.max(1, lastCacheMs)) + 'x';
+      document.getElementById('db-time-label').textContent = `~${lastDbMs}ms`;
+      document.getElementById('cache-time-label').textContent = `~${lastCacheMs}ms`;
+
+      const tbody = document.getElementById('cache-history');
+      const tr = document.createElement('tr'); tr.className = isHit ? 'hit' : 'miss';
+      tr.innerHTML = `<td>${cacheReqCount}</td><td>${queryLabels[qtype]}</td><td style="color:${isHit ? 'var(--accent2)' : 'var(--accent4)'}">${source}${LIVE_MODE && serverId !== '—' ? ' [' + serverId + ']' : ''}</td><td>${ms}ms</td>`;
+      tbody.insertBefore(tr, tbody.firstChild);
+      if (tbody.children.length > 8) tbody.removeChild(tbody.lastChild);
+    }
+
+    // ============================================================
+    // RATE LIMITER
+    // ============================================================
+    let rlTokens = 10, rlMaxTokens = 10, rlRefillRate = 2;
+    let rlTotal = 0, rlOk = 0, rlBlocked = 0;
+    let rlRefillInterval = null;
+
+    function startRefill() {
+      if (rlRefillInterval) clearInterval(rlRefillInterval);
+      rlRefillInterval = setInterval(() => {
+        if (rlTokens < rlMaxTokens) { rlTokens = Math.min(rlMaxTokens, rlTokens + rlRefillRate); renderTokens(); }
+      }, 1000);
+    }
+
+    function renderTokens() {
+      document.getElementById('tokens-left').textContent = rlTokens;
+      const disp = document.getElementById('token-display');
+      disp.innerHTML = '';
+      for (let i = 0; i < rlMaxTokens; i++) {
+        const t = document.createElement('div'); t.className = 'token ' + (i < rlTokens ? 'full' : 'empty');
+        t.textContent = i < rlTokens ? '●' : '○'; disp.appendChild(t);
+      }
+    }
+
+    function updateRateLimitConfig() {
+      rlMaxTokens = parseInt(document.getElementById('max-tokens').value);
+      rlRefillRate = parseInt(document.getElementById('refill-rate').value);
+      rlTokens = Math.min(rlTokens, rlMaxTokens);
+      document.getElementById('max-tokens-display').textContent = rlMaxTokens;
+      document.getElementById('max-tokens-label').textContent = rlMaxTokens;
+      document.getElementById('refill-rate-display').textContent = rlRefillRate + '/sec';
+      document.getElementById('refill-display').textContent = rlRefillRate;
+      renderTokens(); startRefill();
+    }
+
+    async function sendRateRequest() {
+      rlTotal++;
+      const feed = document.getElementById('req-feed');
+      const item = document.createElement('div');
+      const ts = new Date().toLocaleTimeString('en', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      if (LIVE_MODE) {
+        try {
+          const r = await fetch(`${API_BASE}/rate-test`);
+          const d = await r.json();
+          const allowed = r.status === 200;
+          if (allowed) {
+            rlOk++; rlTokens = Math.max(0, d.remaining ?? Math.max(0, rlTokens - 1));
+            item.className = 'req-item ok';
+            item.innerHTML = `<span>GET /rate-test [${d.server_id || '?'}]</span><span class="ri-status">200 OK — ${d.remaining} left (resets in ${d.reset_in}s)</span>`;
+          } else {
+            rlBlocked++;
+            item.className = 'req-item blocked';
+            item.innerHTML = `<span>GET /rate-test [${d.server_id || '?'}]</span><span class="ri-status">429 TOO MANY — resets in ${d.reset_in}s</span>`;
+            rlTokens = 0;
+          }
+        } catch (e) {
+          item.className = 'req-item blocked';
+          item.innerHTML = `<span>GET /rate-test</span><span class="ri-status">ERR — backend unreachable</span>`;
+        }
+      } else {
+        if (rlTokens > 0) {
+          rlTokens--; rlOk++;
+          item.className = 'req-item ok';
+          item.innerHTML = `<span>GET /api/feed [${ts}]</span><span class="ri-status">200 OK — token consumed (${rlTokens} left)</span>`;
+        } else {
+          rlBlocked++;
+          item.className = 'req-item blocked';
+          item.innerHTML = `<span>GET /api/feed [${ts}]</span><span class="ri-status">429 TOO MANY REQUESTS</span>`;
+        }
+      }
+
+      feed.insertBefore(item, feed.firstChild);
+      if (feed.children.length > 20) feed.removeChild(feed.lastChild);
+      renderTokens();
+      document.getElementById('rl-total').textContent = rlTotal;
+      document.getElementById('rl-ok').textContent = rlOk;
+      document.getElementById('rl-blocked').textContent = rlBlocked;
+      document.getElementById('rl-block-pct').textContent = rlTotal > 0 ? Math.round(rlBlocked / rlTotal * 100) + '%' : '0%';
+      document.getElementById('rl-ok-count').textContent = rlOk;
+      document.getElementById('rl-blocked-count').textContent = rlBlocked;
+    }
+
+    async function sendBurst(n) { for (let i = 0; i < n; i++) { sendRateRequest(); await sleep(60); } }
+
+    function resetRateLimiter() {
+      rlTokens = rlMaxTokens; rlTotal = 0; rlOk = 0; rlBlocked = 0; renderTokens();
+      document.getElementById('rl-total').textContent = '0';
+      document.getElementById('rl-ok').textContent = '0';
+      document.getElementById('rl-blocked').textContent = '0';
+      document.getElementById('rl-block-pct').textContent = '0%';
+      document.getElementById('rl-ok-count').textContent = '0';
+      document.getElementById('rl-blocked-count').textContent = '0';
+      document.getElementById('req-feed').innerHTML = '<div style="color:var(--muted);font-size:0.78rem;padding:0.3rem 0.5rem">// Reset. Ready for requests.</div>';
+    }
+
+    // INIT
+    renderTokens();
+    startRefill();
+  </script>
+</body>
+
+</html>

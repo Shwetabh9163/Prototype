@@ -1,0 +1,132 @@
+# =============================================================
+# Docker Compose Configuration — Traffic Management Prototype
+# =============================================================
+# This file defines the entire infrastructure stack:
+#
+#   ┌─────────────────────────────────────────────┐
+#   │  Nginx (port 8080)  ← Load Balancer         │
+#   │    ↓           ↓           ↓                │
+#   │  backend1   backend2   backend3             │
+#   │    ↕           ↕           ↕                │
+#   │              Redis                          │
+#   └─────────────────────────────────────────────┘
+#
+# Usage:
+#   docker-compose up --build        (start everything)
+#   docker-compose down              (stop everything)
+#   docker-compose stop backend2     (simulate server failure)
+#   docker-compose logs -f backend1  (view logs for one server)
+# =============================================================
+
+services:
+
+  # ─────────────────────────────────────────────
+  # Backend Server 1
+  # ─────────────────────────────────────────────
+  backend1:
+    build: ./backend
+    container_name: backend-1
+    environment:
+      - SERVER_ID=server-1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_TTL=30
+      - DB_DELAY_MS=200
+      - RATE_LIMIT=10
+      - RATE_WINDOW=60
+    depends_on:
+      - redis
+    networks:
+      - app-net
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # Backend Server 2
+  # ─────────────────────────────────────────────
+  backend2:
+    build: ./backend
+    container_name: backend-2
+    environment:
+      - SERVER_ID=server-2
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_TTL=30
+      - DB_DELAY_MS=200
+      - RATE_LIMIT=10
+      - RATE_WINDOW=60
+    depends_on:
+      - redis
+    networks:
+      - app-net
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # Backend Server 3
+  # ─────────────────────────────────────────────
+  backend3:
+    build: ./backend
+    container_name: backend-3
+    environment:
+      - SERVER_ID=server-3
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_TTL=30
+      - DB_DELAY_MS=200
+      - RATE_LIMIT=10
+      - RATE_WINDOW=60
+    depends_on:
+      - redis
+    networks:
+      - app-net
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # Redis — Cache + Rate Limit Store
+  # ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-net
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # Nginx — Load Balancer + Frontend
+  # ─────────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      # Mount the Nginx configuration
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Mount proxy parameters
+      - ./nginx/proxy_params:/etc/nginx/proxy_params:ro
+      # Mount the frontend HTML
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend1
+      - backend2
+      - backend3
+    networks:
+      - app-net
+    restart: unless-stopped
+
+# ─────────────────────────────────────────────
+# Shared Network — all containers communicate here
+# ─────────────────────────────────────────────
+networks:
+  app-net:
+    driver: bridge
+
+# ─────────────────────────────────────────────
+# Persistent Volume for Redis data
+# ─────────────────────────────────────────────
+volumes:
+  redis-data:
