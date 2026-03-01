@@ -39,8 +39,8 @@ reverse proxy distributes traffic.
   `frontend/index.html` in the legacy layout).
 - Allows manually sending requests and displays cache and rate limit
   feedback.
-- No build step required; open directly in any modern browser or let
-  Vercel serve it for you.
+- No build step required; open directly in any modern browser or serve
+  the static files from any web server.
 
 ### 🌀 Nginx
 - Configured as a reverse proxy with health checks and round-robin
@@ -53,45 +53,42 @@ reverse proxy distributes traffic.
 
 ## 🏁 Getting Started
 
-This repository now supports both a **Vercel deployment** and
-traditional local development.  The Vercel setup hosts the frontend as a
-static site (from `public/`) and exposes the backend as a Python
-serverless API under the `/api` path.  For offline experimentation you
-can still run the original Docker/Nginx architecture from the
-`legacy/` directory.
+This repository supports traditional local development and can be
+hosted on any web server or Python-capable platform.  For offline
+experimentation you can still run the original Docker/Nginx
+architecture from the `legacy/` directory.
 
-### 🚀 Deploying on Vercel
+### 🛠 Local Development (Python + Redis)
 
-1.  Push the current branch to GitHub if you haven't already:
-    ```bash
-    git push origin main
-    ```
-2.  In the Vercel dashboard, import the project from GitHub.  No build
-    command is required; Vercel will use `vercel.json` to configure the
-    build:
+You can run the API and frontend locally without Docker:
 
-    - Static files served from `public/`
-    - Python API routed through `api/index.py`
+```bash
+# create a virtual environment
+python -m venv venv
+# activate it
+# Windows
+venv\Scripts\activate
+# macOS/Linux
+# source venv/bin/activate
 
-3.  Set the following **Environment Variables** in your Vercel project
-   settings:
+pip install -r requirements.txt
+# optionally run Redis locally (e.g. `docker run -p 6379:6379 redis:7`)
 
-    | Name       | Description                          |
-    |------------|--------------------------------------|
-    | `REDIS_URL`| (optional) URL of a Redis instance; e.g. Upstash. |
-    | `CACHE_TTL`| TTL in seconds for cached entries (default 30). |
-    | `RATE_LIMIT` | Requests per window (default 10).   |
-    | `RATE_WINDOW`| Window length in seconds (default 60). |
+# start the API (port 8000 is default)
+uvicorn api.index:app --reload --port 8000
+```
 
-   If you omit `REDIS_URL` the backend will still run, but caching and
-   rate limiting will be disabled.
+Open `public/index.html` in your browser (or serve it with the server of
+your choice) and the UI will communicate with
+`http://localhost:8000/data`, `/rate-test`, etc.
 
-4.  Deploy.  The frontend will be available at
-    `https://<your-project>.vercel.app/` and the API at
-    `https://<your-project>.vercel.app/api`.
+### 📦 Legacy Docker Architecture
 
-   The dashboard uses a relative base (`/api`), so it will automatically
-   talk to the correct endpoint once deployed.
+If you still want to explore the original high-scale prototype with
+multiple backend containers and Nginx, look in the `legacy/` directory
+(where the previous `backend/`, `nginx/` and `docker-compose.yml`
+files have been relocated).  That layout is purely for local testing and
+is not required for general deployment.
 
 ### 🛠 Local Development (Python + Redis)
 
@@ -133,15 +130,15 @@ Vercel deployments.
 
 ## 📂 Project Structure
 
-The repository is organised to work cleanly on Vercel while still
-retaining the original prototype for local experimentation.
+The repository is organised to separate the static frontend from the
+Python backend while still retaining the original multi‑container
+prototype for local experimentation.
 
-- `public/`: Static frontend assets (HTML, JS, CSS) – Vercel serves this
-  at the site root.
-- `api/`: Python backend (FastAPI) which is exposed under `/api` by
-  Vercel; contains the rate limiter helper.
-- `requirements.txt`: Python dependencies for the serverless API.
-- `vercel.json`: Vercel configuration (builds and routes).
+- `public/`: Static frontend assets (HTML, JS, CSS) – serve these with
+  any web server.
+- `api/`: Python backend (FastAPI) exposed under `/api`; contains the
+  rate limiter helper.
+- `requirements.txt`: Python dependencies for the backend.
 - `legacy/`: (optional) holds the previous `backend/`, `nginx/`, and
   `docker-compose.yml` layout used for Docker-based testing.
 
