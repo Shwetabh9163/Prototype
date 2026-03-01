@@ -23,7 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import redis
 
-from .rate_limit import check_rate_limit
+from api.rate_limit import check_rate_limit
 
 # ------------------------------------------------------------
 # Configuration (env vars)
