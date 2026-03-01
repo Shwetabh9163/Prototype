@@ -1,8 +1,0 @@
-# FastAPI — modern, high-performance web framework
-fastapi==0.115.0
-
-# Uvicorn — ASGI server to run FastAPI (with standard extras for performance)
-uvicorn[standard]==0.30.0
-
-# Redis — Python client for Redis (used for caching + rate limiting)
-redis==5.0.0

@@ -82,45 +82,6 @@ Open `public/index.html` in your browser (or serve it with the server of
 your choice) and the UI will communicate with
 `http://localhost:8000/data`, `/rate-test`, etc.
 
-### 📦 Legacy Docker Architecture
-
-If you still want to explore the original high-scale prototype with
-multiple backend containers and Nginx, look in the `legacy/` directory
-(where the previous `backend/`, `nginx/` and `docker-compose.yml`
-files have been relocated).  That layout is purely for local testing and
-is not required for general deployment.
-
-### 🛠 Local Development (Python + Redis)
-
-You can also run the API and frontend locally without Docker:
-
-```bash
-# create a virtual environment
-python -m venv venv
-# activate it
-# Windows
-venv\Scripts\activate
-# macOS/Linux
-# source venv/bin/activate
-
-pip install -r requirements.txt
-# optionally run Redis locally (e.g. `docker run -p 6379:6379 redis:7`)
-
-# start the API (port 8000 is default)
-uvicorn api.index:app --reload --port 8000
-```
-
-Open `public/index.html` in your browser and the UI will communicate with
-`http://localhost:8000/data`, `/rate-test`, etc.
-
-### 📦 Legacy Docker Architecture
-
-If you still want to explore the original high-scale prototype with
-multiple backend containers and Nginx, look in the `legacy/` directory
-(where the previous `backend/`, `nginx/` and `docker-compose.yml`
-files have been relocated).  That layout is **not required** for
-Vercel deployments.
-
 ## Cleaning Up & Development Notes
 
 - The `backend/__pycache__` directory is generated at runtime and is
@@ -141,9 +102,3 @@ prototype for local experimentation.
 - `requirements.txt`: Python dependencies for the backend.
 - `legacy/`: (optional) holds the previous `backend/`, `nginx/`, and
   `docker-compose.yml` layout used for Docker-based testing.
-
----
-*Built as a prototype for high-scale research and education.*
-
----
-*Built as a prototype for high-scale research and education.*
