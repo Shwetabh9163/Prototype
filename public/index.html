@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>raffic Management Prototype</title>
+  <title>Traffic Management Prototype</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -1457,7 +1457,10 @@
     // Switch between LIVE (real backend) and DEMO (simulation) mode
     // ============================================================
 
-    const API_BASE = 'http://localhost:8080';
+    // When deployed (or running locally with the Vercel layout) the
+    // backend is available under the `/api` prefix.  The demo mode still
+    // works without a backend.
+    const API_BASE = '/api';
     let LIVE_MODE = false;
 
     // ── MODE TOGGLE ──────────────────────────────────────────────
